@@ -1,0 +1,32 @@
+{
+  "name": "swaggger-pipes-advanced-example",
+  "version": "0.0.1",
+  "private": "true",
+  "description": "Advanced example of using Swagger Pipes",
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "main": "app.js",
+  "dependencies": {
+    "a127-magic": "^0.7.0",
+    "async": "^0.9.0",
+    "debug": "^2.1.2",
+    "express": "3.x.x",
+    "request": "^2.53.0",
+    "swagger-client": "^2.1.9-M1",
+    "yelp": "^0.1.1"
+  },
+  "devDependencies": {
+    "should": "4.4.x",
+    "supertest": "0.15.x"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
+  "api": {
+    "name": "pipes",
+    "basePath": "/pipes",
+    "docsPath": "/docs",
+    "main": "app.js"
+  }
+}

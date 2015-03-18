@@ -1,0 +1,100 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: Travel Plan API
+host: localhost
+basePath: /
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+x-a127-config:
+  yelp_config: &yelpConfig CONFIGURED
+
+x-swagger-pipes:
+
+  yelpSearch:                   # user fitting (type is optional)
+    name: yelp_search           # the file name of the module in user's fittings directory
+    config: *yelpConfig
+    input:
+      term:                     # the name of the input parameter
+        name: term              # the name of the key to select from parameters
+        in: parameters          # parameters are populated by Swagger tools
+        default: restaurants    # used if the term is missing
+      latitude:
+        name: lat
+        in: output              # output is emitted by previous fitting in pipe
+      longitude:
+        name: lng
+        in: output
+
+  google_geocode:
+    name: http                  # system fitting (type is optional)
+    input:
+      url: http://maps.googleapis.com/maps/api/geocode/json?sensor=true
+      params:
+        address:                # name defaults to key (ie. address)
+          in: parameters
+
+  wunderground:                 # url defaults to input which defaults to output
+    name: http
+    config:
+      baseUrl: http://api.wunderground.com/api/161cf6c817d55c86/forecast10day/q/
+
+  errorHandler:
+    type: user
+    name: error_handler
+
+  getAddressLocation:
+    - google_geocode            # call the fitting defined in this swagger
+    - path: body                # system fitting: get body from output
+    - parse: json               # body is a json string, parse to object
+    - path: results             # get results from body
+    - first                     # get first result
+    - path: geometry.location   # output = { lat: n, lng: n }
+
+  getRestaurants:
+    - yelpSearch
+    - pick: [name, address, city, state_code, display_phone]  # select these keys from the search results
+
+  getWeather:
+    - render: '{{lat}},{{lng}}.json'  # format weather url for wunderground task
+    - wunderground
+    - path: body
+    - parse: json
+    - path: forecast.txt_forecast.forecastday   # paths can be period-delimited to select nested objects
+    - pick: fcttext
+
+  getRestaurantsAndWeatherFromAddress:
+    - onError: errorHandler         # install a custom error handler
+    - getAddressLocation
+    - restaurants: getRestaurants   # these are resolved in parallel and emitted as key-value pairs
+      weather: getWeather
+    - render: @travel_view.mustache   # the @ indicates the template is loaded from the file in the fittings directory
+
+
+paths:
+
+  /travel:
+    x-swagger-pipe: getRestaurantsAndWeatherFromAddress
+    get:
+      description: Retrieve 10-day weather and restaurant list given an input address
+      parameters:
+        - name: address
+          in: query
+          description: address
+          required: true
+          type: string
+      responses:
+        default:
+          description: Any
+          schema:
+            $ref: "#/definitions/Any"
+
+definitions:
+  Any:
+    properties: {}

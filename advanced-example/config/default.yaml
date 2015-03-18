@@ -1,0 +1,6 @@
+# enter your configuration for Yelp API here...
+yelp_config:
+  consumer_key: CONFIG
+  consumer_secret: CONFIG
+  token: CONFIG
+  token_secret: CONFIG
