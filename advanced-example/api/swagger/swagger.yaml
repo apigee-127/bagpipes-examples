@@ -53,9 +53,8 @@ x-swagger-pipes:
     - google_geocode            # call the fitting defined in this swagger
     - path: body                # system fitting: get body from output
     - parse: json               # body is a json string, parse to object
-    - path: results             # get results from body
+    - jspath: .results.geometry.location   # get location
     - first                     # get first result
-    - path: geometry.location   # output = { lat: n, lng: n }
 
   getRestaurants:
     - yelpSearch
@@ -66,8 +65,7 @@ x-swagger-pipes:
     - wunderground
     - path: body
     - parse: json
-    - path: forecast.txt_forecast.forecastday   # paths can be period-delimited to select nested objects
-    - pick: fcttext
+    - jspath: .forecast.txt_forecast.forecastday.fcttext   # paths can be period-delimited to select nested objects
 
   getRestaurantsAndWeatherFromAddress:
     - onError: errorHandler         # install a custom error handler
