@@ -14,7 +14,8 @@
     "express": "3.x.x",
     "request": "^2.53.0",
     "swagger-client": "^2.1.9-M1",
-    "yelp": "^0.1.1"
+    "yelp": "^0.1.1",
+    "swagger-pipes": ""
   },
   "devDependencies": {
     "should": "4.4.x",
@@ -24,8 +25,8 @@
     "start": "node app.js"
   },
   "api": {
-    "name": "pipes",
-    "basePath": "/pipes",
+    "name": "advanced-example",
+    "basePath": "/advanced-example",
     "docsPath": "/docs",
     "main": "app.js"
   }
