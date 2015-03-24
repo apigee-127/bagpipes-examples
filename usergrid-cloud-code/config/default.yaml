@@ -1,0 +1,9 @@
+usergridConfig:
+  uri: CONFIG
+  organization: CONFIG
+  application: CONFIG
+  clientId: CONFIG
+  clientSecret: CONFIG
+  logging: true
+
+mailgunApiKey: CONFIG

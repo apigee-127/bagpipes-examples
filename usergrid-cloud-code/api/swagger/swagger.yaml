@@ -1,0 +1,151 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: Usergrid Cloud Code Example
+host: localhost
+basePath: /
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+x-a127-config:
+
+  usergridConfig: &usergridConfig CONFIGURED
+  mailgunApiKey: &mailgunApiKey CONFIGURED
+
+x-swagger-pipes:
+
+  orderCounter:                                 # user fitting, keeps counters as a global
+    name: counter
+    id: orderRetrievalCount
+
+  usergridOrders:
+    name: usergrid
+    config: *usergridConfig
+    input:
+      type: orders
+      action: all
+
+  pushNotification:
+    name: usergrid                              # todo: create specific usergrid push notification fitting
+    config: *usergridConfig
+    input:
+      # type: groups/push_notify/notifications
+      type: notes
+      action: create
+
+  sendEmail:
+    type: node-machine
+    machinepack: machinepack-mailgun
+    machine: sendPlaintextEmail
+    input:
+      apiKey: *mailgunApiKey
+      domain: mg.ganyo.com
+      toEmail: scott@ganyo.com
+      toName: Scott Ganyo
+      fromEmail: sganyo@apigee.com
+      fromName: Scott Ganyo
+      subject: Someone deleted an order!
+      message: Someone deleted an order!        # message will be replaced in pipe
+
+  getOrder:
+    - orderCounter: 1
+    - usergridOrders:
+        action: find
+        attributes:
+          uuid:
+            name: id
+            in: parameters
+    - omit: [metadata,secret,type]
+
+  createOrder:
+    - emit:
+        name: '*'
+        in: body
+    - amend:
+        secret: 'my secret'
+    - usergridOrders:
+        action: create
+        attributes:
+          name: '*'
+          in: output
+    - omit: [metadata,secret,type]
+    - memo: savedOutput     # saves context.output to context.savedOutput
+    - pushNotification:     # { "payloads": { <notifier>: <message> } }
+        attributes:
+          payloads:
+            myNotifier:
+              name: savedOutput
+              in: context
+    - emit:
+        name: savedOutput
+        in: context
+
+  deleteOrder:
+    - usergridOrders:
+        action: delete
+        attributes:
+          uuid:
+            name: id
+            in: parameters
+    - eval: context.output = JSON.stringify(context.output)
+    - sendEmail:
+        message:
+          name: '*'
+          in: output
+    - emit: deleted
+
+paths:
+
+  /orders:
+
+    post:
+      x-swagger-pipe: createOrder
+      description: create an order in usergrid, send a push notification
+      parameters:
+        - name: body
+          in: body
+          description: body
+          required: true
+          schema:
+            type: object
+      responses:
+        default:
+          description: anything
+          schema:
+            $ref: "#/definitions/Any"
+
+  /orders/{id}:
+
+    parameters:
+      - name: id
+        in: path
+        description: id
+        required: true
+        type: string
+
+    get:
+      x-swagger-pipe: getOrder
+      description: get an order from usergrid, increment a counter
+      responses:
+        default:
+          description: anything
+          schema:
+            $ref: "#/definitions/Any"
+
+    delete:
+      x-swagger-pipe: deleteOrder
+      description: delete an order from usergrid, send an email notification
+      responses:
+        default:
+          description: anything
+          schema:
+            $ref: "#/definitions/Any"
+
+definitions:
+  Any:
+    properties: {}
