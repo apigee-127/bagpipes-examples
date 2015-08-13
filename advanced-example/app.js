@@ -37,9 +37,9 @@ function createSwaggerPipes(config) {
   var pipesDefs = magic.swaggerObject['x-swagger-pipes'];
   var path = require('path');
   var pipesConfig = {
-    userControllersDir: magic.controllers.controllers,
-    userFittingsDir: path.resolve(__dirname, 'api/fittings'),
-    userViewsDir: path.resolve(__dirname, 'api/fittings')
+    userControllersDirs: [ magic.controllers.controllers ],
+    userFittingsDirs: [ path.resolve(__dirname, 'api/fittings') ],
+    userViewsDirs: [ path.resolve(__dirname, 'api/fittings') ]
   };
   return swaggerPipes.create(pipesDefs, pipesConfig).connectMiddleware();
 }
