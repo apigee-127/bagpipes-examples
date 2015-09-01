@@ -1,9 +1,108 @@
-usergridConfig:
-  uri: CONFIG
-  organization: CONFIG
-  application: CONFIG
-  clientId: CONFIG
-  clientSecret: CONFIG
+usergridConfig: &usergridConfig
+  uri: http://localhost:8080
+  organization: test-organization
+  application: test-app
+  clientId: b3U6OqZRar1MEeSNG6le93g_Iw
+  clientSecret: b3U6_apQ0fPNDk7xfqtBBH0VgXXOOyc
   logging: true
+  buildCurl: true
 
-mailgunApiKey: CONFIG
+mailgunApiKey: &mailgunApiKey key-234caf7911855247e659af7875b9fad0
+
+swagger:
+
+  fittingsDir: api/fittings
+  viewsDir: api/fittings
+  defaultPipe: null
+  swaggerControllerPipe: swagger_controllers  # defines the standard processing pipe for controllers
+
+  # values in the swagger:pipes hash are the pipes definitions
+  pipes:
+
+    _router:
+      name: swagger_router
+      mockMode: false
+      mockControllersDirs: [ api/mocks ]
+      controllersDirs: [ api/controllers ]
+
+    _swagger_validate:
+      name: swagger_validator
+      validateReponse: true
+
+    # pipe for all swagger-node controllers
+    swagger_controllers:
+      - onError: json_error_handler
+      - cors
+      - swagger_security
+      - _swagger_validate
+      - express_compatibility
+      - _router
+
+    orderCounter:                                 # user fitting, keeps counters as a global
+      name: counter
+      id: orderRetrievalCount
+
+    usergridOrders:
+      name: usergrid
+      config: *usergridConfig
+      input:
+        type: orders
+        action: all
+
+    pushNotification:
+      name: usergrid                              # todo: create specific usergrid push notification fitting
+      config: *usergridConfig
+      input:
+        # type: groups/push_notify/notifications
+        type: notes
+        action: create
+
+    sendEmail:
+      type: node-machine
+      machinepack: machinepack-mailgun
+      machine: sendPlaintextEmail
+      input:
+        apiKey: *mailgunApiKey
+        domain: mg.ganyo.com
+        toEmail: scott@ganyo.com
+        toName: Scott Ganyo
+        fromEmail: sganyo@apigee.com
+        fromName: Scott Ganyo
+        subject: Someone deleted an order!
+        message: Someone deleted an order!        # message will be replaced in pipe
+
+    getOrder:
+      - orderCounter: 1
+      - usergridOrders:
+          action: find
+          attributes:
+            uuid: .request.swagger.params.id.value[0]
+      - omit: [metadata,secret,type]
+
+    createOrder:
+      - emit: .request.body[0]
+      - amend:
+          secret: 'my secret'
+      - usergridOrders:
+          action: create
+          attributes: .output[0]
+      - omit: [metadata,secret,type]
+      - memo: savedOutput     # saves context.output to context.savedOutput
+      - pushNotification:     # { "payloads": { <notifier>: <message> } }
+          attributes:
+            payloads:
+              myNotifier:
+                name: savedOutput
+                in: context
+      - emit: .savedOutput
+
+    deleteOrder:
+      - usergridOrders:
+          action: delete
+          attributes:
+            uuid: .request.swagger.params.id.value[0]
+      - eval: context.output = JSON.stringify(context.output)
+      - sendEmail:
+          message: .output[0]
+      - emit: deleted
+

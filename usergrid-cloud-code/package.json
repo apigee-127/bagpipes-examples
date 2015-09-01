@@ -8,16 +8,15 @@
   "license": "",
   "main": "app.js",
   "dependencies": {
-    "a127-magic": "^0.7.0",
-    "express": "3.x.x",
-    "machinepack-mailgun": "^0.3.1",
+    "connect": "^3.4.0",
+    "machinepack-mailgun": "^0.4.0",
     "swagger-pipes": "",
-    "usergrid-objects": "0.0.9",
+    "usergrid-objects": "^0.0.11",
     "volos-spikearrest-memory": ""
   },
   "devDependencies": {
-    "should": "4.4.x",
-    "supertest": "0.15.x"
+    "should": "^7.1.0",
+    "supertest": "^1.1.0"
   },
   "scripts": {
     "start": "node app.js"

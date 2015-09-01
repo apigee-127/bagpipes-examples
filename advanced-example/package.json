@@ -8,14 +8,14 @@
   "license": "",
   "main": "app.js",
   "dependencies": {
-    "a127-magic": "^0.7.0",
     "async": "^0.9.0",
+    "connect": "^3.4.0",
     "debug": "^2.1.2",
     "express": "3.x.x",
     "request": "^2.53.0",
     "swagger-client": "^2.1.9-M1",
-    "yelp": "^0.1.1",
-    "swagger-pipes": ""
+    "swagger-pipes": "",
+    "yelp": "^0.1.1"
   },
   "devDependencies": {
     "should": "4.4.x",

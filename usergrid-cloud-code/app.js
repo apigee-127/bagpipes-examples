@@ -1,45 +1,33 @@
 'use strict';
 
-var a127 = require('a127-magic');
-var express = require('express');
-var app = express();
+require('machinepack-mailgun')
 
+var SwaggerConnect = require('swagger-connect');
+var app = require('connect')();
 module.exports = app; // for testing
 
-// initialize a127 framework
-a127.init(function(config) {
+var config = {
+  appRoot: __dirname // required config
+};
 
-  // include a127 middleware
-  app.use(a127.middleware(config));
+// set security handlers
+config.swaggerSecurityHandlers = {
+  oauth2: function securityHandler1(req, authOrSecDef, scopesOrApiKey, cb) {
+    cb();
+  }
+};
 
-  // set up swagger pipes
-  app.use(createSwaggerPipes(config));
+SwaggerConnect.create(config, function(err, swaggerConnect) {
+  if (err) { throw err; }
 
-  // error handler to emit errors as a json string
-  app.use(function(err, req, res, next) {
-    if (err && typeof err === 'object') {
-      Object.defineProperty(err, 'message', { enumerable: true }); // include message property in response
-      res.end(JSON.stringify(err));
-    }
-    next(err);
-  });
+  // install middleware
+  swaggerConnect.register(app);
+
   var port = process.env.PORT || 10010;
-  // begin listening for client requests
   app.listen(port);
 
-  console.log('try this:\ncurl http://127.0.0.1:' + port + '/hello?name=Scott');
+  console.log('try these:');
+  console.log('curl -X post http://127.0.0.1:%d/orders -d {}', port);
+  console.log('curl http://127.0.0.1:%d/orders/ID', port);
+  console.log('curl -X delete http://127.0.0.1:%d/orders/ID', port);
 });
-
-function createSwaggerPipes(config) {
-
-  var swaggerPipes = require('swagger-pipes');
-  var magic = config['a127.magic'];
-  var pipesDefs = magic.swaggerObject['x-swagger-pipes'];
-  var path = require('path');
-  var pipesConfig = {
-    userControllersDirs: [ magic.controllers.controllers ],
-    userFittingsDirs: [ path.resolve(__dirname, 'api/fittings') ],
-    userViewsDirs: [ path.resolve(__dirname, 'api/fittings') ]
-  };
-  return swaggerPipes.create(pipesDefs, pipesConfig).connectMiddleware();
-}
