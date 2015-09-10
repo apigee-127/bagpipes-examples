@@ -27,7 +27,7 @@ SwaggerConnect.create(config, function(err, swaggerConnect) {
   app.listen(port);
 
   console.log('try these:');
-  console.log('curl -X post http://127.0.0.1:%d/orders -d {}', port);
-  console.log('curl http://127.0.0.1:%d/orders/ID', port);
-  console.log('curl -X delete http://127.0.0.1:%d/orders/ID', port);
+  console.log('curl http://127.0.0.1:%d/orders -H "Content-Type: application/json" -d \'{"name": "scott"}\'', port);
+  console.log('curl http://127.0.0.1:%d/orders/scott', port);
+  console.log('curl -X DELETE http://127.0.0.1:%d/orders/scott', port);
 });

@@ -11,13 +11,13 @@ mailgunApiKey: &mailgunApiKey key-234caf7911855247e659af7875b9fad0
 
 swagger:
 
-  fittingsDir: api/fittings
-  viewsDir: api/fittings
+  fittingsDirs: [api/fittings]
+  viewsDirs: [api/fittings]
   defaultPipe: null
   swaggerControllerPipe: swagger_controllers  # defines the standard processing pipe for controllers
 
   # values in the swagger:pipes hash are the pipes definitions
-  pipes:
+  bagpipes:
 
     _router:
       name: swagger_router

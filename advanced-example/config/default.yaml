@@ -12,13 +12,13 @@ yelp_config: &yelpConfig
 # values in the swagger hash are system configuration for swagger-node
 swagger:
 
-  fittingsDir: api/fittings
-  viewsDir: api/fittings
+  fittingsDirs: [api/fittings]
+  viewsDirs: [api/fittings]
   defaultPipe: null
   swaggerControllerPipe: swagger_controllers  # defines the standard processing pipe for controllers
 
   # values in the swagger:pipes hash are the pipes definitions
-  pipes:
+  bagpipes:
 
     _router:
       name: swagger_router
