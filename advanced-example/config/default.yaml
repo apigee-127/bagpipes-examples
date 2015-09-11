@@ -1,6 +1,91 @@
+# swagger configuration file
+
 # enter your configuration for Yelp API here...
-yelp_config:
-  consumer_key: CONFIG
-  consumer_secret: CONFIG
-  token: CONFIG
-  token_secret: CONFIG
+
+yelp_config: &yelpConfig
+  consumer_key: REPLACE-ME
+  consumer_secret: REPLACE-ME
+  token: REPLACE-ME
+  token_secret: REPLACE-ME
+
+
+# values in the swagger hash are system configuration for swagger-node
+swagger:
+
+  fittingsDirs: [ api/fittings ]
+  viewsDirs: [ api/fittings ]
+  defaultPipe: null
+  swaggerControllerPipe: swagger_controllers  # defines the standard processing pipe for controllers
+
+  # values in the bagpipes hash are the pipes definitions
+  bagpipes:
+
+    _router:
+      name: swagger_router
+      mockMode: false
+      mockControllersDirs: [ api/mocks ]
+      controllersDirs: [ api/controllers ]
+
+    _swagger_validate:
+      name: swagger_validator
+      validateReponse: true
+
+    # pipe for all swagger-node controllers
+    swagger_controllers:
+      - onError: json_error_handler
+      - cors
+      - swagger_security
+      - _swagger_validate
+      - express_compatibility
+      - _router
+
+    yelpSearch:                   # user fitting (type is optional)
+      name: yelp_search           # the file name of the module in user's fittings directory
+      config: *yelpConfig
+      input:
+        term:
+          value: .request.swagger.params.term.value[0]
+          default: restaurants    # used if the term is missing
+        latitude: .output.lat
+        longitude: .output.lng
+
+    google_geocode:
+      name: http                  # system fitting (type is optional)
+      input:
+        url: http://maps.googleapis.com/maps/api/geocode/json?sensor=true
+        params:
+          address: .request.swagger.params.address.value[0]
+
+    wunderground:                 # url defaults to input which defaults to output
+      name: http
+      config:
+        baseUrl: http://api.wunderground.com/api/161cf6c817d55c86/forecast10day/q/
+
+    errorHandler:
+      type: user
+      name: error_handler
+
+    getAddressLocation:
+      - google_geocode            # call the fitting defined in this swagger
+      - path: body                # system fitting: get body from output
+      - parse: json               # body is a json string, parse to object
+      - emit: .output.results.geometry.location   # get location
+      - first                     # get first result
+
+    getRestaurants:
+      - yelpSearch
+      - pick: [name, address, city, state_code, display_phone]  # select these keys from the search results
+
+    getWeather:
+      - render: '{{lat}},{{lng}}.json'  # format weather url for wunderground task
+      - wunderground
+      - path: body
+      - parse: json
+      - emit: .output.forecast.txt_forecast.forecastday.fcttext   # paths can be period-delimited to select nested objects
+
+    getRestaurantsAndWeatherFromAddress:
+      - onError: errorHandler         # install a custom error handler
+      - getAddressLocation
+      - restaurants: getRestaurants   # these are resolved in parallel and emitted as key-value pairs
+        weather: getWeather
+      - render: '@travel_view.mustache' # the @ indicates the template is loaded from the file in the fittings directory

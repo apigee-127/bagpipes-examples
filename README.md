@@ -1,2 +1,2 @@
-# swagger-pipes-examples
-Examples of using swagger-pipes
+# Bagpipes-examples
+Examples of using Bagpipes (via swagger-node)
