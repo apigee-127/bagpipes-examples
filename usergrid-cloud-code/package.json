@@ -1,18 +1,17 @@
 {
-  "name": "usergrid_cloud_code",
+  "name": "bagpipes-usergrid-cloud-code-example",
   "version": "0.0.1",
   "private": "true",
-  "description": "My new Apigee 127 Project",
+  "description": "Cloud code example of using Swagger Pipes (via swagger-node)",
   "keywords": [],
-  "author": "",
-  "license": "",
+  "author": "Scott Ganyo <sganyo@apigee.com>",
+  "license": "MIT",
   "main": "app.js",
   "dependencies": {
-    "bagpipes": "^0.0.3",
     "connect": "^3.4.0",
     "machinepack-mailgun": "^0.4.0",
-    "usergrid-objects": "^0.0.11",
-    "volos-spikearrest-memory": ""
+    "swagger-connect": "^0.1.0",
+    "usergrid-objects": "^0.0.12"
   },
   "devDependencies": {
     "should": "^7.1.0",

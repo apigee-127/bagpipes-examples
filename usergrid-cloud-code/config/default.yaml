@@ -1,22 +1,22 @@
 usergridConfig: &usergridConfig
-  uri: http://localhost:8080
-  organization: test-organization
-  application: test-app
-  clientId: b3U6OqZRar1MEeSNG6le93g_Iw
-  clientSecret: b3U6_apQ0fPNDk7xfqtBBH0VgXXOOyc
+  uri: REPLACE-ME
+  organization: REPLACE-ME
+  application: REPLACE-ME
+  clientId: REPLACE-ME
+  clientSecret: REPLACE-ME
   logging: true
   buildCurl: true
 
-mailgunApiKey: &mailgunApiKey key-234caf7911855247e659af7875b9fad0
+mailgunApiKey: &mailgunApiKey REPLACE-ME
 
 swagger:
 
-  fittingsDirs: [api/fittings]
-  viewsDirs: [api/fittings]
+  fittingsDirs: [ api/fittings ]
+  viewsDirs: [ api/fittings ]
   defaultPipe: null
   swaggerControllerPipe: swagger_controllers  # defines the standard processing pipe for controllers
 
-  # values in the swagger:pipes hash are the pipes definitions
+  # values in the bagpipes hash are the pipes definitions
   bagpipes:
 
     _router:

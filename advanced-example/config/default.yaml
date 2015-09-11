@@ -3,21 +3,21 @@
 # enter your configuration for Yelp API here...
 
 yelp_config: &yelpConfig
-  consumer_key: dKNadYLZXGVI0zkai2bQkw
-  consumer_secret: Iarmiy5WowLspq18_7mYGzeGBBc
-  token: DByjPdOogTu6H6yyR1CLuA3vxDv1VuTT
-  token_secret: yGg0J-DDzzv8NDirwXGhlfKWA64
+  consumer_key: REPLACE-ME
+  consumer_secret: REPLACE-ME
+  token: REPLACE-ME
+  token_secret: REPLACE-ME
 
 
 # values in the swagger hash are system configuration for swagger-node
 swagger:
 
-  fittingsDirs: [api/fittings]
-  viewsDirs: [api/fittings]
+  fittingsDirs: [ api/fittings ]
+  viewsDirs: [ api/fittings ]
   defaultPipe: null
   swaggerControllerPipe: swagger_controllers  # defines the standard processing pipe for controllers
 
-  # values in the swagger:pipes hash are the pipes definitions
+  # values in the bagpipes hash are the pipes definitions
   bagpipes:
 
     _router:
